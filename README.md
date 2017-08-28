@@ -1,66 +1,44 @@
-# Getting-and-Cleaning-Data-Course-Rroject
-This is my course project of Getting and Cleaning Data
+Getting_and_Cleaning_Data_Project
+Project purpose
 
-setwd("E:/coursera/note")
+The purpose of this project is to demonstrate your ability to collect, work with, and clean a data set. The goal is to prepare tidy data that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. You will be required to submit: 1) a tidy data set as described below, 2) a link to a Github repository with your script for performing the analysis, and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected.
 
-#-------------------------------------------------------------------------------
-# 1. Merge the training and the test sets to create one data set.
+Data source
 
-## step 1: download zip file from website
-if(!file.exists("./data")) dir.create("./data")
-fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-download.file(fileUrl, destfile = "./data/projectData_getCleanData.zip")
+A full description is available at the site where the data was obtained here.
 
-## step 2: unzip data
-listZip <- unzip("./data/projectData_getCleanData.zip", exdir = "./data")
+The information about how the experiment conducted and how the original data collected can be found in the zip file here.
 
-## step 3: load data into R
-train.x <- read.table("./data/UCI HAR Dataset/train/X_train.txt")
-train.y <- read.table("./data/UCI HAR Dataset/train/y_train.txt")
-train.subject <- read.table("./data/UCI HAR Dataset/train/subject_train.txt")
-test.x <- read.table("./data/UCI HAR Dataset/test/X_test.txt")
-test.y <- read.table("./data/UCI HAR Dataset/test/y_test.txt")
-test.subject <- read.table("./data/UCI HAR Dataset/test/subject_test.txt")
+Files
 
-## step 4: merge train and test data
-trainData <- cbind(train.subject, train.y, train.x)
-testData <- cbind(test.subject, test.y, test.x)
-fullData <- rbind(trainData, testData)
+run_analysis.R is the R script for running all functions to fulfil this project tasks:
+Merges the training and the test sets to create one data set.
+Extracts only the measurements on the mean and standard deviation for each measurement.
+Uses descriptive activity names to name the activities in the data set
+Appropriately labels the data set with descriptive variable names.
+From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+"codebook.md" gives the relevant information about the data and steps to run the project.
+"MeanData.txt" is a tidy dataset that contains mean of each measurement for each activity and each subject.
+"README.md" is the file you are reading.
+Ideas behind run_analysis.R
 
-#-------------------------------------------------------------------------------
-# 2. Extract only the measurements on the mean and standard deviation for each measurement. 
+1. Merge the training and the test sets to create one data set.
 
-## step 1: load feature name into R
-featureName <- read.table("./data/UCI HAR Dataset/features.txt", stringsAsFactors = FALSE)[,2]
+Using download.file() together with unzip() function to download the zip file from website to my compute.
+Using read.table() function to load "X_train.txt", "y_train", "subject_train" in train directory and "X_test", "y_test", "subject_test" into R.
+Using rbind() and cbind() functions to merge all train and test data together.
+2. Extract only the measurements on the mean and standard deviation for each measurement.
 
-## step 2:  extract mean and standard deviation of each measurements
-featureIndex <- grep(("mean\\(\\)|std\\(\\)"), featureName)
-finalData <- fullData[, c(1, 2, featureIndex+2)]
-colnames(finalData) <- c("subject", "activity", featureName[featureIndex])
+Using read.table() function to load "features.txt" into R.
+Using grep() function to find the indexes with "mean()" and "sd()".
+select all relevant columns and set the columns name using the selected features name.
+3. Uses descriptive activity names to name the activities in the data set
 
-#-------------------------------------------------------------------------------
-# 3. Uses descriptive activity names to name the activities in the data set
+Using read.table() function to load "activity_labels.txt" into R.
+Using factor() function with arguments "levels = " and "labels = " to replace the numbers to activity names.
+4. Appropriately labels the data set with descriptive variable names
 
-## step 1: load activity data into R
-activityName <- read.table("./data/UCI HAR Dataset/activity_labels.txt")
+Using gsub() function to replace all characters I think they are needed to replace.
+5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-## step 2: replace 1 to 6 with activity names
-finalData$activity <- factor(finalData$activity, levels = activityName[,1], labels = activityName[,2])
-
-#-------------------------------------------------------------------------------
-# 4. Appropriately labels the data set with descriptive variable names.
-
-names(finalData) <- gsub("\\()", "", names(finalData))
-names(finalData) <- gsub("^t", "time", names(finalData))
-names(finalData) <- gsub("^f", "frequence", names(finalData))
-names(finalData) <- gsub("-mean", "Mean", names(finalData))
-names(finalData) <- gsub("-std", "Std", names(finalData))
-
-#-------------------------------------------------------------------------------
-# 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-library(dplyr)
-groupData <- finalData %>%
-        group_by(subject, activity) %>%
-        summarise_each(funs(mean))
-
-write.table(groupData, "./Getting_and_Cleaning_data_Project/MeanData.txt", row.names = FALSE)
+Using group_by() and summarise_each() functions in dplyr package to calculate all means for each activity and wach subject.
