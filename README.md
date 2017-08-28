@@ -11,7 +11,7 @@ The information about how the experiment conducted and how the original data col
 
 Files
 
-run_analysis.R is the R script for running all functions to fulfil this project tasks:
+"My code script" is the R script for running all functions to fulfil this project tasks:
 Merges the training and the test sets to create one data set.
 Extracts only the measurements on the mean and standard deviation for each measurement.
 Uses descriptive activity names to name the activities in the data set
